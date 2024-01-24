@@ -32,7 +32,7 @@
 上述11列信息，是SAM文件必要的组成部分。除此之外，每行可以追加可选信息。该部分信息以`TAG:TYPE:VALUE` 形式存储
 
 案例：
-![sam文件](https://github.com/JaxonHello/BISN/blob/main/src/bam_sam/%E6%88%AA%E5%B1%8F2024-01-22%2013.55.17.png)
+![sam文件](https://github.com/JaxonHello/BISN/blob/main/src/bam_sam/%E6%88%AA%E5%B1%8F2024-01-24%2014.52.01.png)
 
 无效或者没有的字段一般用“0”或者“*”表示。
 
