@@ -37,7 +37,7 @@
 无效或者没有的字段一般用“0”或者“*”表示。
 
 该文件来自于以下更原始的测序格式：
-![origin sam文件](/Users/jaxonhe/Library/Application Support/typora-user-images/截屏2024-01-22 14.01.25.png)
+![origin sam文件](https://github.com/JaxonHello/BISN/blob/main/src/bam_sam/%E6%88%AA%E5%B1%8F2024-01-22%2014.01.25.png)
 
 *注：以上图片均来自于官方文档。*https://samtools.github.io/hts-specs/SAMv1.pdf
 
@@ -46,7 +46,7 @@
 
 `FLAG`: 状态参数
 
-![截屏2024-01-22 14.06.24](/Users/jaxonhe/Library/Application Support/typora-user-images/截屏2024-01-22 14.06.24.png)
+![FLAG参数意义](https://github.com/JaxonHello/BISN/blob/main/src/bam_sam/%E6%88%AA%E5%B1%8F2024-01-22%2014.06.24.png)
 
 `RNAME`: 比对上的参考序列的名字，该名字出现在Header section的@SQ行的SN标识中
 
@@ -64,7 +64,7 @@
 
 `ISIZE`: 比对长度。如果是情况1，长度是read2最右侧减去read1最左侧。情况2的话暂未达成共识，它的长度可以是read1，也可以是read2。
 
-![截屏2024-01-22 14.36.25](/Users/jaxonhe/Library/Application Support/typora-user-images/截屏2024-01-22 14.36.25.png)
+![ISIZE测量方法](https://github.com/JaxonHello/BISN/blob/main/src/bam_sam/%E6%88%AA%E5%B1%8F2024-01-22%2014.36.25.png)
 
 `SEQ` & `QUAL`：序列和测序质量(ASCII编码)
 
