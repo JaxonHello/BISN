@@ -40,7 +40,7 @@
 该文件来自于以下更原始的测序格式：
 ![origin sam文件](https://github.com/JaxonHello/BISN/blob/main/src/bam_sam/%E6%88%AA%E5%B1%8F2024-01-22%2014.01.25.png)
 
-*注：以上图片均来自于官方文档。*https://samtools.github.io/hts-specs/SAMv1.pdf
+*注：以上图片均来自于官方文档。* https://samtools.github.io/hts-specs/SAMv1.pdf
 
 对于具体的字段解释：
 `Qname`: r001 : read name
