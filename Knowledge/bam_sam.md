@@ -213,6 +213,7 @@ E150025748L1C032R01601632864    272     chr14   105741490       1       80M27764
 
 参考教程：
 http://www.xtaohub.com/BI-solutions/bam-file-format.html
+
 https://www.jianshu.com/p/ff6187c97155
 
 
