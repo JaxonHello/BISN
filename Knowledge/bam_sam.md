@@ -32,12 +32,12 @@
 上述11列信息，是SAM文件必要的组成部分。除此之外，每行可以追加可选信息。该部分信息以`TAG:TYPE:VALUE` 形式存储
 
 案例：
-![截屏2024-01-22 13.55.17](/src/bam_sam/截屏2024-01-22 13.55.17.png)
+![sam文件](https://github.com/JaxonHello/BISN/blob/main/src/bam_sam/%E6%88%AA%E5%B1%8F2024-01-22%2013.55.17.png)
 
 无效或者没有的字段一般用“0”或者“*”表示。
 
 该文件来自于以下更原始的测序格式：
-![截屏2024-01-22 14.01.25](/Users/jaxonhe/Library/Application Support/typora-user-images/截屏2024-01-22 14.01.25.png)
+![origin sam文件](/Users/jaxonhe/Library/Application Support/typora-user-images/截屏2024-01-22 14.01.25.png)
 
 *注：以上图片均来自于官方文档。*https://samtools.github.io/hts-specs/SAMv1.pdf
 
