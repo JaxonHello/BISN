@@ -13,6 +13,7 @@ suppressPackageStartupMessages({
   library(clusterProfiler)
   library(org.Mm.eg.db)
   library(enrichplot)
+  library(openxlsx)
 })
 
 # ====== Configuration ======
@@ -281,3 +282,54 @@ p <- ggplot(df, aes(x = avg_log2FC, y = neglog10_padj)) +
 
 ggsave(filename = paste0("DEG/", sample1, "_vs_", sample2, "_", celltype, "_volcano.png"),
        plot = p, width = 6, height = 5, dpi = 300)
+
+
+
+# Test bubble plot
+gsea_go_df <- read.csv("V01/DEG/AS1_Control2_Macrophage_GOBP.csv", row.names = 1)
+
+plot_df <- gsea_go_df %>%
+  arrange(desc(abs(NES))) %>%            # 按 |NES| 排序
+  slice_head(n = 15) %>%
+  mutate(Description = factor(Description, levels = rev(Description)))
+
+ggplot(plot_df, aes(x = NES, y = Description)) +
+  geom_point(aes(size = setSize, color = qvalue)) +
+  scale_colour_distiller(palette = "RdPu", direction = -1) +
+  theme_classic() +
+  labs(x = "NES", y = NULL, size = "setSize", color = "qvalue")
+
+
+gobp_files <- list.files(path = "./V01/DEG", pattern = "GOBP\\.csv$", full.names = TRUE)
+
+for (file in gobp_files){
+  print(file)
+  group1 <- strsplit(gsub("\\.csv$", "", basename(file)), "_")[[1]][1]   
+  group2 <- strsplit(gsub("\\.csv$", "", basename(file)), "_")[[1]][2]    
+  celltype <- strsplit(gsub("\\.csv$", "", basename(file)), "_")[[1]][3] 
+  
+  gsea_go_df <- read.csv(file, row.names = 1)
+  
+  plot_df <- gsea_go_df %>%
+    arrange(desc(abs(NES))) %>%            # 按 |NES| 排序
+    slice_head(n = 15) %>%
+    mutate(Description = factor(Description, levels = rev(Description)))
+  
+  p <- ggplot(plot_df, aes(x = NES, y = Description)) +
+    geom_point(aes(size = setSize, color = qvalue)) +
+    scale_colour_distiller(palette = "RdPu", direction = -1) +
+    theme_classic() +
+    labs(x = "NES", y = NULL, size = "setSize", color = "qvalue")
+  
+  ggsave(filename = paste0("V01/DEG/", group1, "_", group2, "_", celltype, "_Bubble.png"),
+         plot = p, width = 8, height = 6)
+}
+
+
+
+
+
+# 气泡柱状组合图
+
+
+
