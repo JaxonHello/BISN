@@ -270,8 +270,6 @@ enrichment_plot <- function(enrichment, GO_term, savePNG = FALSE, output_file = 
   return(p)
 }
 
-# ========== Analysis ==========
-# 1. 测试，AD1 vs AS1 Macrophage
 Run_DEG_ORA_GSEA <- function(obj, type_cir, type, group_cir, group01, group02, output_dir) {
   
   # Total pipeline of DEG, ORA and GSEA from a Seurat obj
@@ -391,11 +389,14 @@ Run_DEG_ORA_GSEA <- function(obj, type_cir, type, group_cir, group01, group02, o
   cat(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 }
 
+
+# ========== Analysis ==========
+# 1. Test: AD1 vs AS1 Macrophage
 Run_DEG_ORA_GSEA(obj, type_cir = "MainType", type = "Macrophage", 
                  group_cir = "sample", group01 = "AD1", group02 = "Control2", 
                  output_dir = "./V02")
 
-# 2. 循环输出所有结果
+# 2. Loop to get all the result
 for (type in unique(obj$MainType)){
   for (group01 in unique(obj$sample)){
     for (group02 in unique(obj$sample)){
