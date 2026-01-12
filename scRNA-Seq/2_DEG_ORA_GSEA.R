@@ -16,7 +16,6 @@ suppressPackageStartupMessages({
   library(org.Mm.eg.db)
   library(enrichplot)
   library(openxlsx)
-  library(enrichplot)
 })
 
 # ========== Configuration & Initiation ==========
