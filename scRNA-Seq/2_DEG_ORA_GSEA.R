@@ -16,6 +16,7 @@ suppressPackageStartupMessages({
   library(org.Mm.eg.db)
   library(enrichplot)
   library(openxlsx)
+  library(enrichplot)
 })
 
 # ========== Configuration & Initiation ==========
@@ -38,6 +39,8 @@ obj2DEG <- function(obj, type_cir, type = NULL, group_cir, group01 = NULL, group
   md <- obj[[]]
   cells_use <- rownames(md)[md[[type_cir]] == type & md[[group_cir]] %in% c(group01, group02)]
   sub_obj <- subset(obj, cells = cells_use)
+  
+  if (sum(sub_obj$sample == group02) < 3 || sum(sub_obj$sample == group01) < 3) return(NULL)
   
   deg <- FindMarkers(
     sub_obj,
@@ -157,40 +160,36 @@ GO_ora_2 <- function(deg, OrgDb, ont = "BP", write_2_csv = FALSE, output_prefix 
   up_gene   <- rownames(deg)[deg$p_val_adj < padj_cut & deg$avg_log2FC >  lfc_cut]
   down_gene <- rownames(deg)[deg$p_val_adj < padj_cut & deg$avg_log2FC < -lfc_cut]
   
-  up_df <- clusterProfiler::bitr(up_gene, fromType = "SYMBOL", toType = "ENTREZID", OrgDb = OrgDb)
-  dn_df <- clusterProfiler::bitr(down_gene, fromType = "SYMBOL", toType = "ENTREZID", OrgDb = OrgDb)
-
-  ora_up <- clusterProfiler::enrichGO(
-    gene          = unique(up_df$ENTREZID),
-    OrgDb         = OrgDb,
-    keyType       = "ENTREZID",
-    ont           = ont,
-    pAdjustMethod = "BH",
-    pvalueCutoff  = 0.05,
-    qvalueCutoff  = 0.2,
-    readable      = TRUE
-  )
+  if (length(up_gene) == 0)  up_df <- NULL else up_df <- clusterProfiler::bitr(up_gene,   fromType="SYMBOL", toType="ENTREZID", OrgDb=OrgDb)
+  if (length(down_gene) == 0) dn_df <- NULL else dn_df <- clusterProfiler::bitr(down_gene, fromType="SYMBOL", toType="ENTREZID", OrgDb=OrgDb)
   
-  ora_dn <- clusterProfiler::enrichGO(
-    gene          = unique(dn_df$ENTREZID),
-    OrgDb         = OrgDb,
-    keyType       = "ENTREZID",
-    ont           = ont,
-    pAdjustMethod = "BH",
-    pvalueCutoff  = 0.05,
-    qvalueCutoff  = 0.2,
-    readable      = TRUE
-  )
+  ora_up <- NULL
+  if (!is.null(up_df) && nrow(up_df) > 0) {
+    ora_up <- clusterProfiler::enrichGO(gene=unique(up_df$ENTREZID), OrgDb=OrgDb, keyType="ENTREZID",
+                                        ont=ont, pAdjustMethod="BH", pvalueCutoff=0.05, qvalueCutoff=0.2, readable=TRUE)
+  }
   
-  ora_up_df <- as.data.frame(ora_up)
-  ora_dn_df <- as.data.frame(ora_dn)
-  ora_up_df$Direction <- "Up"
-  ora_dn_df$Direction <- "Down"
+  ora_dn <- NULL
+  if (!is.null(dn_df) && nrow(dn_df) > 0) {
+    ora_dn <- clusterProfiler::enrichGO(gene=unique(dn_df$ENTREZID), OrgDb=OrgDb, keyType="ENTREZID",
+                                        ont=ont, pAdjustMethod="BH", pvalueCutoff=0.05, qvalueCutoff=0.2, readable=TRUE)
+  }
+  
+  ora_up_df <- if (is.null(ora_up)) data.frame() else as.data.frame(ora_up)
+  if (nrow(ora_up_df) > 0) ora_up_df$Direction <- "Up"
+  
+  ora_dn_df <- if (is.null(ora_dn)) data.frame() else as.data.frame(ora_dn)
+  if (nrow(ora_dn_df) > 0) ora_dn_df$Direction <- "Down"
   
   ora_all_df <- rbind(ora_up_df, ora_dn_df)
   
+  if (nrow(ora_all_df) == 0) {
+    return(list(ora_up = ora_up, ora_dn = ora_dn, ora_all_df = ora_all_df))
+  }
+  
   ora_all_df$Direction <- factor(ora_all_df$Direction, levels = c("Up", "Down"))
   ora_all_df <- ora_all_df[order(ora_all_df$Direction, -ora_all_df$FoldEnrichment), ]
+  
 
   if (write_2_csv) {
     stopifnot(!is.null(output_prefix))
@@ -386,27 +385,67 @@ Run_DEG_ORA_GSEA <- function(obj, type_cir, type, group_cir, group01, group02, o
     cat("No GSEA terms -> skip gseaplot2.\n")
   }
   
-  cat(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+  cat(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n")
 }
 
-
 # ========== Analysis ==========
-# 1. Test: AD1 vs AS1 Macrophage
-Run_DEG_ORA_GSEA(obj, type_cir = "MainType", type = "Macrophage", 
-                 group_cir = "sample", group01 = "AD1", group02 = "Control2", 
+# 1. Test
+Run_DEG_ORA_GSEA(obj, type_cir = "MainType", type = "Plasma Cell", 
+                 group_cir = "sample", group01 = "AS1", group02 = "Aged1", 
                  output_dir = "./V02")
 
-# 2. Loop to get all the result
-for (type in unique(obj$MainType)){
-  for (group01 in unique(obj$sample)){
-    for (group02 in unique(obj$sample)){
-      print(paste0("=============", type, "_", group01, "_", group02, "============"))
-      if (group01 != group02){
+
+# 3. Loop method to get the result
+for (group01 in c("AD1", "AD3")){
+  for (group02 in c("AS1", "AS2", "Aged1", "Control2")){
+    if (group01 != group02){
+      for (type in unique(obj$MainType)){
         Run_DEG_ORA_GSEA(obj, type_cir = "MainType", type = type, 
                          group_cir = "sample", group01 = group01, group02 = group02, 
-                         output_dir = "./V02/MainType_sample")
+                         output_dir = "./V02/MainType_sample_v02")
+        gc()
       }
-      print("===========================")
+    }
+  }
+}
+
+for (group01 in c("AS1", "AS2")){
+  for (group02 in c("Aged1", "Control2")){
+    if (group01 != group02){
+      for (type in unique(obj$MainType)){
+        
+        res <- try(Run_DEG_ORA_GSEA(
+          obj, type_cir = "MainType", type = type,
+          group_cir = "sample", group01 = group01, group02 = group02,
+          output_dir = "./V02/MainType_sample_v02"
+        ), silent = TRUE)
+        
+        if (inherits(res, "try-error")) {
+          cat("SKIP:", group01, "vs", group02, "|", type, "\n",
+              "  ->", as.character(res), "\n")
+        }
+        
+        gc()
+      }
+    }
+  }
+}
+
+for (group01 in c("Aged1")){
+  for (group02 in c("Control2")){
+    if (group01 != group02){
+      for (type in unique(obj$MainType)){
+        res <- try(Run_DEG_ORA_GSEA(
+          obj, type_cir = "MainType", type = type,
+          group_cir = "sample", group01 = group01, group02 = group02,
+          output_dir = "./V02/MainType_sample_v02"
+        ), silent = TRUE)
+        
+        if (inherits(res, "try-error")) {
+          cat("ERROR:", group01, "vs", group02, "|", type, "|", as.character(res), "\n")
+        }
+        gc()
+      }
     }
   }
 }
